@@ -3,8 +3,10 @@
 
 source_code_position_t* create_source_code_position() {
     source_code_position_t* source_code_position = malloc(sizeof(source_code_position_t));
+
     source_code_position->column = 1;
     source_code_position->row = 1;
+
     return source_code_position;
 }
 

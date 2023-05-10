@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include "verilog_file_stream_reader.h"
 
-verilog_file_stream_reader_t* create_verilog_file_stream_reader(string_t* path) {
+verilog_file_stream_reader_t* create_verilog_file_stream_reader(string_t* file_path) {
     verilog_file_stream_reader_t* reader = malloc(sizeof(verilog_file_stream_reader_t));
 
-    reader->file_path = path;
-    reader->file = fopen(path->value, "r");
+    reader->file_path = file_path;
+    reader->file = fopen(file_path->value, "r");
     reader->seek_position = 0;
     reader->source_code_position = create_source_code_position();
 
@@ -25,15 +25,18 @@ char verilog_read_next_char(verilog_file_stream_reader_t* verilog_file_stream_re
         exit(1);
         return EOF;
     }
+
     char ch = fgetc(verilog_file_stream_reader->file);
     verilog_file_stream_reader->seek_position++;
     update_source_code_position(verilog_file_stream_reader->source_code_position, ch);
+
     return ch;
 }
 
 int verilog_reader_has_next_char(verilog_file_stream_reader_t* verilog_file_stream_reader) {
     char ch = fgetc(verilog_file_stream_reader->file);
     ungetc(ch, verilog_file_stream_reader->file);
+
     return ch != EOF;
 }
 
