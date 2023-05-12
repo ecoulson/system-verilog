@@ -1,7 +1,8 @@
-CC=clang
+CC=gcc
 INCLUDE_DIRS=-I.
 OPTIMIZATION_LEVEL=-O0
-CFLAGS=-Wall -Wextra -g $(INCLUDE_DIRS) $(OPTIMIZATION_LEVEL)
+LIBRARIES=-lm
+CFLAGS=-Wall -Wextra -g $(INCLUDE_DIRS) $(OPTIMIZATION_LEVEL) 
 
 SOURCE_FILE_PATHS=$(wildcard src/*.c)
 HEADER_FILE_PATHS=$(wildcard src/*.h)
@@ -12,10 +13,10 @@ BINARY=bin
 all: $(BINARY)
 
 $(BINARY): $(OBJECT_FILE_PATHS)
-	$(CC) -o $@ $^
+	$(CC) -g -o $@ $^ -lm
 
 %.o:%.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) -c -o $@ $^ -lm
 
 .PHONY: clean
 
