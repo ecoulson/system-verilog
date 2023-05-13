@@ -15,11 +15,11 @@ verilog_file_stream_reader_t* create_verilog_file_stream_reader(string_t* file_p
 void free_verilog_file_stream_reader(verilog_file_stream_reader_t* verilog_file_stream_reader) {
     fclose(verilog_file_stream_reader->file);
 
-    free_source_code_position(verilog_file_stream_reader->source_code_position);
+    source_code_position_deallocate(verilog_file_stream_reader->source_code_position);
     free(verilog_file_stream_reader);
 }
 
-char verilog_read_next_char(verilog_file_stream_reader_t* verilog_file_stream_reader) {
+char verilog_read_char(verilog_file_stream_reader_t* verilog_file_stream_reader) {
     if (!verilog_reader_has_next_char(verilog_file_stream_reader)) {
         printf("Trying to read outside of bounds of %s\n", verilog_file_stream_reader->file_path->value);
         exit(1);
@@ -29,6 +29,13 @@ char verilog_read_next_char(verilog_file_stream_reader_t* verilog_file_stream_re
     char ch = fgetc(verilog_file_stream_reader->file);
     verilog_file_stream_reader->seek_position++;
     update_source_code_position(verilog_file_stream_reader->source_code_position, ch);
+
+    return ch;
+}
+
+char verilog_peek_char(verilog_file_stream_reader_t* verilog_file_stream_reader) {
+    char ch = fgetc(verilog_file_stream_reader->file);
+    ungetc(ch, verilog_file_stream_reader->file);
 
     return ch;
 }

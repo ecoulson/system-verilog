@@ -16,7 +16,8 @@ typedef struct verilog_file_stream_reader_s {
 
 verilog_file_stream_reader_t* create_verilog_file_stream_reader(string_t* file_path);
 void free_verilog_file_stream_reader(verilog_file_stream_reader_t* verilog_file_stream_reader);
-char verilog_read_next_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
+char verilog_read_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
+char verilog_peek_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
 int verilog_reader_has_next_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
 void print_verilog_file_stream_reader(FILE* file, verilog_file_stream_reader_t* verilog_file_stream_reader);
 

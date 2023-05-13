@@ -1,4 +1,6 @@
 #include <string.h>
+#include <math.h>
+#include <stdio.h>
 
 #include "string.h"
 
@@ -34,12 +36,16 @@ string_t* string_concatenate(string_t *prefix, string_t *suffix) {
 }
 
 string_t* string_format(string_t* format_string, array_list_t* arguments) {
-    string_t *empty_string = string_create("");
-    string_t *display_string = empty_string;
+    string_t *display_string = string_create("");
     int parameter_index = 0;
 
     for (int i = 0; i < format_string->length; i++) {
         char ch = format_string->value[i];
+
+        if (ch == '\{') {
+            display_string = string_append_character(display_string, '{');
+            continue;
+        }
 
         if (ch != '{') {
             display_string = string_append_character(display_string, ch);
@@ -60,11 +66,20 @@ string_t* string_format(string_t* format_string, array_list_t* arguments) {
             return NULL;
         }
 
-        string_t* element = array_list_get(arguments, parameter_index);
-        display_string = string_concatenate(display_string, element);
+        display_string = string_concatenate(display_string, array_list_get(arguments, parameter_index));
         parameter_index++;
         i++;
     }
 
+    display_string->value[display_string->length] = '\0';
+
     return display_string;
+}
+
+string_t* string_convert_integer(int i) {
+    char* buffer = malloc(50 * sizeof(char));
+    sprintf(buffer, "%d", i);
+    string_t* result = string_create(buffer);
+    free(buffer);
+    return result;
 }
