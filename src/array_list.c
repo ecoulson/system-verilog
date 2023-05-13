@@ -67,7 +67,7 @@ void array_list_assert_in_bounds(array_list_t *array_list, int i) {
 
 void* array_list_get(array_list_t *array_list, int i) {
     array_list_assert_in_bounds(array_list, i);
-    return &array_list->elements[i];
+    return array_list->elements[i];
 }
 
 void array_list_downsize(array_list_t* array_list) {

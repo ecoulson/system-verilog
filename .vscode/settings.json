@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.heex": "phoenix-heex",
+        "stdio.h": "c",
+        "verilog_file_stream_reader.h": "c"
+    }
+}
