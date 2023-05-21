@@ -4,10 +4,9 @@
 verilog_file_stream_reader_t* create_verilog_file_stream_reader(string_t* file_path) {
     verilog_file_stream_reader_t* reader = malloc(sizeof(verilog_file_stream_reader_t));
 
-    reader->file_path = file_path;
     reader->file = fopen(file_path->value, "r");
     reader->seek_position = 0;
-    reader->source_code_position = create_source_code_position();
+    reader->source_code_position = create_source_code_position(file_path);
 
     return reader;
 }
@@ -21,8 +20,6 @@ void free_verilog_file_stream_reader(verilog_file_stream_reader_t* verilog_file_
 
 char verilog_read_char(verilog_file_stream_reader_t* verilog_file_stream_reader) {
     if (!verilog_reader_has_next_char(verilog_file_stream_reader)) {
-        printf("Trying to read outside of bounds of %s\n", verilog_file_stream_reader->file_path->value);
-        exit(1);
         return EOF;
     }
 
@@ -50,10 +47,15 @@ int verilog_reader_has_next_char(verilog_file_stream_reader_t* verilog_file_stre
 void print_verilog_file_stream_reader(FILE* stream, verilog_file_stream_reader_t* verilog_file_stream_reader) {
     fprintf(
         stream,
-        "VerilogFileStreamReader {\n\tpath: %s\n\tseek_position: %d\n\tcolumn: %d\n\trow: %d\n}\n",
-        verilog_file_stream_reader->file_path->value,
+        "VerilogFileStreamReader {\n\tpath: %s\n\tseek_position: %lu\n\tcolumn: %d\n\trow: %d\n}\n",
+        verilog_file_stream_reader->source_code_position->file_path->value,
         verilog_file_stream_reader->seek_position,
         verilog_file_stream_reader->source_code_position->column,
         verilog_file_stream_reader->source_code_position->row
     );
+}
+
+void verilog_seek_to(verilog_file_stream_reader_t* verilog_file_stream_reader, int seek_position) {
+    fseek(verilog_file_stream_reader->file, seek_position, SEEK_SET);
+    verilog_file_stream_reader->seek_position = seek_position;
 }

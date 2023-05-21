@@ -7,9 +7,11 @@
 typedef struct source_code_position_s {
     int row;
     int column;
+    string_t* file_path;
 } source_code_position_t;
 
-source_code_position_t* create_source_code_position(); 
+source_code_position_t* create_source_code_position(string_t* file_path); 
+source_code_position_t* source_code_position_copy(source_code_position_t* source_code_position);
 void update_source_code_position(source_code_position_t* source_code_position, char ch);
 void source_code_position_deallocate(source_code_position_t* source_code_position); 
 

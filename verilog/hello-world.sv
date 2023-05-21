@@ -2,7 +2,6 @@ module M();
 
     initial
         begin
-            $display("Hello World");
-        end
-
-endmodule
+            11_11
+            -11_11
+            12'sb0101101

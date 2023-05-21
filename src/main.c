@@ -11,11 +11,20 @@ void compile(int argument_count, char** argument_variables) {
         string_t *file_name = string_create(argument_variables[i]);
         verilog_file_stream_reader_t* verilog_file_stream_reader = create_verilog_file_stream_reader(file_name);
         lexer_t* lexer = lexer_create(verilog_file_stream_reader);
+        FILE* file = fopen(file_name->value, "r");
+        fseek(file, 53, SEEK_SET);
+        printf("%c\n", fgetc(file));
+        fclose(file);
 
         printf("%s\n", file_name->value);
         while (lexer_has_tokens_to_lex(lexer)) {
             token_t* token = lexer_lex(lexer);
-            printf("Token: %s %s\n", token->value->value, "");
+            printf(
+                "Token: %d %s %s\n", 
+                token->type, 
+                token->value->value,
+                lexer->file_stream_reader->source_code_position->file_path->value
+            );
             token_deallocate(token);
         }
 
