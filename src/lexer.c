@@ -3,16 +3,13 @@
 #include "lexer.h"
 #include "verilog_file_stream_reader.h"
 
-lexer_t* lexer_create(verilog_file_stream_reader_t* file_stream_reader) {
-    lexer_t* lexer = malloc(sizeof(lexer_t));
+lexer_t* lexer_create(arena_t* arena, verilog_file_stream_reader_t* file_stream_reader) {
+    lexer_t* lexer = arena_allocate(arena, sizeof(lexer_t));
 
+    lexer->arena = arena;
     lexer->file_stream_reader = file_stream_reader;
 
     return lexer;
-}
-
-void lexer_deallocate(lexer_t* lexer) {
-    free(lexer);
 }
 
 char lexer_read_next_character(lexer_t* lexer) {
@@ -25,9 +22,10 @@ char lexer_peek_next_character(lexer_t* lexer) {
 
 token_t* lexer_create_error_token(lexer_t* lexer) {
     return token_create(
+        lexer->arena,
         TOKEN_ERROR,
-        string_create(""),
-        source_code_position_copy(lexer->file_stream_reader->source_code_position)
+        string_create(lexer->arena, ""),
+        source_code_position_copy(lexer->arena, lexer->file_stream_reader->source_code_position)
     );
 }
 
@@ -138,31 +136,31 @@ int lexer_is_escape_character(char ch) {
 }
 
 token_t* lexer_read_string(lexer_t* lexer, source_code_position_t* source_code_position) {
-    string_t* string = string_create("");
+    string_t* string = string_create(lexer->arena, "");
     char ch = lexer_peek_next_character(lexer);
 
     if (!lexer_is_string(ch)) {
         return lexer_create_error_token(lexer);
     }
 
-    string = string_append_character(string, lexer_read_next_character(lexer));
+    string = string_append_character(lexer->arena, string, lexer_read_next_character(lexer));
     ch = lexer_peek_next_character(lexer);
 
     while (!lexer_is_string(ch) && ch != EOF) {
         if (lexer_is_escape_character(ch)) {
-            string = string_append_character(string, lexer_read_next_character(lexer));
+            string = string_append_character(lexer->arena, string, lexer_read_next_character(lexer));
             ch = lexer_peek_next_character(lexer);
         }
 
-        string = string_append_character(string, lexer_read_next_character(lexer));
+        string = string_append_character(lexer->arena, string, lexer_read_next_character(lexer));
         ch = lexer_peek_next_character(lexer);
     }
 
     if (lexer_is_string(ch)) {
-        string = string_append_character(string, lexer_read_next_character(lexer));
+        string = string_append_character(lexer->arena, string, lexer_read_next_character(lexer));
     }
 
-    return token_create(TOKEN_CHARACTER_SEQUENCE, string, source_code_position);
+    return token_create(lexer->arena, TOKEN_CHARACTER_SEQUENCE, string, source_code_position);
 }
 
 token_t* lexer_read_punctuation(lexer_t* lexer, source_code_position_t* position) {
@@ -173,10 +171,10 @@ token_t* lexer_read_punctuation(lexer_t* lexer, source_code_position_t* position
         return lexer_create_error_token(lexer);
     }
 
-    string_t* punctuation = string_create("");
-    punctuation = string_append_character(punctuation, next_char);
+    string_t* punctuation = string_create(lexer->arena, "");
+    punctuation = string_append_character(lexer->arena, punctuation, next_char);
 
-    return token_create(type, punctuation, position);
+    return token_create(lexer->arena, type, punctuation, position);
 }
 
 int lexer_is_number_sequence(char ch) {
@@ -184,7 +182,7 @@ int lexer_is_number_sequence(char ch) {
 }
 
 token_t* lexer_read_number_squence(lexer_t* lexer, source_code_position_t* position) {
-    string_t* number = string_create("");
+    string_t* number = string_create(lexer->arena, "");
     char ch = lexer_peek_next_character(lexer);
 
     if (!lexer_is_number_sequence(ch)) {
@@ -192,11 +190,11 @@ token_t* lexer_read_number_squence(lexer_t* lexer, source_code_position_t* posit
     }
 
     while (lexer_is_number_sequence(ch)) {
-        number = string_append_character(number, lexer_read_next_character(lexer));
+        number = string_append_character(lexer->arena, number, lexer_read_next_character(lexer));
         ch = lexer_peek_next_character(lexer);
     }
 
-    return token_create(TOKEN_NUMBER_SEQUENCE, number, position);
+    return token_create(lexer->arena, TOKEN_NUMBER_SEQUENCE, number, position);
 }
 
 int lexer_is_letter(char ch) {
@@ -205,7 +203,7 @@ int lexer_is_letter(char ch) {
 }
 
 token_t* lexer_read_char_sequence(lexer_t* lexer, source_code_position_t* position) {
-    string_t* sequence = string_create("");
+    string_t* sequence = string_create(lexer->arena, "");
     char ch = lexer_peek_next_character(lexer);
 
     if (!lexer_is_letter(ch)) {
@@ -213,11 +211,11 @@ token_t* lexer_read_char_sequence(lexer_t* lexer, source_code_position_t* positi
     }
 
     while(lexer_is_letter(ch)) {
-        sequence = string_append_character(sequence, lexer_read_next_character(lexer));
+        sequence = string_append_character(lexer->arena, sequence, lexer_read_next_character(lexer));
         ch = lexer_peek_next_character(lexer);
     }
 
-    return token_create(TOKEN_CHARACTER_SEQUENCE, sequence, position);
+    return token_create(lexer->arena, TOKEN_CHARACTER_SEQUENCE, sequence, position);
 }
 
 int lexer_has_tokens_to_lex(lexer_t* lexer) {
@@ -225,12 +223,13 @@ int lexer_has_tokens_to_lex(lexer_t* lexer) {
 }
 
 token_t* lexer_create_eof_token(lexer_t* lexer) {
-    string_t* eof = string_create("");
-    eof = string_append_character(eof, EOF);
+    string_t* eof = string_create(lexer->arena, "");
+    eof = string_append_character(lexer->arena, eof, EOF);
     source_code_position_t* position = source_code_position_copy(
+        lexer->arena,
         lexer->file_stream_reader->source_code_position
     );
-    return token_create(TOKEN_EOF, eof, position);
+    return token_create(lexer->arena, TOKEN_EOF, eof, position);
 }
 
 void lexer_seek_to(lexer_t* lexer, int seek_position) {
@@ -249,6 +248,7 @@ token_t* lexer_lex(lexer_t* lexer) {
     }
 
     source_code_position_t* position = source_code_position_copy(
+        lexer->arena,
         lexer->file_stream_reader->source_code_position
     );
     token_t* possible_tokens[4];
@@ -296,4 +296,8 @@ token_t* lexer_lex(lexer_t* lexer) {
     lexer_seek_to(lexer, new_seek_position);
 
     return longest_match;
+}
+
+void lexer_close(lexer_t* lexer) {
+    fclose(lexer->file_stream_reader->file);
 }

@@ -3,52 +3,58 @@
 #include <stdio.h>
 
 #include "string.h"
+#include "arena.h"
 
-string_t* string_create(char* value) {
-    string_t* string = malloc(sizeof(string_t));
+string_t* string_create(arena_t* arena, char* value) {
+    string_t* string = arena_allocate(arena, sizeof(string_t));
 
-    string->value = strdup(value);
-    string->length = strlen(string->value);
+    string->length = strlen(value);
+    string->value = arena_allocate(arena, sizeof(char) * (string->length + 1));
+    
+    for (size_t i = 0; i < string->length; i++) {
+        string->value[i] = value[i];
+    }
+    string->value[string->length] = '\0';
     
     return string;
 }
 
-void string_deallocate(string_t *string) {
-    free(string->value);
-    free(string);
-}
-
-string_t* string_append_character(string_t *string, char character) {
+string_t* string_append_character(arena_t* arena, string_t *string, char character) {
+    int old_size = (string->length + 1) * sizeof(char);
     string->length++;
-    string->value = realloc(string->value, sizeof(char) * (string->length + 1));
+    int new_size = (string->length + 1) * sizeof(char);
+
+    string->value = arena_reallocate(arena, string->value, old_size, new_size);
     string->value[string->length - 1] = character;
     string->value[string->length] = '\0';
 
     return string;
 }
 
-string_t* string_concatenate(string_t *prefix, string_t *suffix) {
+string_t* string_concatenate(arena_t* arena, string_t *prefix, string_t *suffix) {
+    int old_size = (prefix->length + 1) * sizeof(char);
     prefix->length += suffix->length;
-    prefix->value = realloc(prefix->value, sizeof(char) * (prefix->length + 1));
+    int new_size = (prefix->length + 1) * sizeof(char);
+    prefix->value = arena_reallocate(arena, prefix->value, old_size, new_size);
     prefix->value = strcat(prefix->value, suffix->value);
 
     return prefix;
 }
 
-string_t* string_format(string_t* format_string, array_list_t* arguments) {
-    string_t *display_string = string_create("");
+string_t* string_format(arena_t* arena, string_t* format_string, array_list_t* arguments) {
+    string_t *display_string = string_create(arena, "");
     int parameter_index = 0;
 
     for (int i = 0; i < format_string->length; i++) {
         char ch = format_string->value[i];
 
         if (ch == '\{') {
-            display_string = string_append_character(display_string, '{');
+            display_string = string_append_character(arena, display_string, '{');
             continue;
         }
 
         if (ch != '{') {
-            display_string = string_append_character(display_string, ch);
+            display_string = string_append_character(arena, display_string, ch);
             continue;
         }
 
@@ -66,7 +72,7 @@ string_t* string_format(string_t* format_string, array_list_t* arguments) {
             return NULL;
         }
 
-        display_string = string_concatenate(display_string, array_list_get(arguments, parameter_index));
+        display_string = string_concatenate(arena, display_string, array_list_get(arguments, parameter_index));
         parameter_index++;
         i++;
     }
@@ -74,12 +80,4 @@ string_t* string_format(string_t* format_string, array_list_t* arguments) {
     display_string->value[display_string->length] = '\0';
 
     return display_string;
-}
-
-string_t* string_convert_integer(int i) {
-    char* buffer = malloc(50 * sizeof(char));
-    sprintf(buffer, "%d", i);
-    string_t* result = string_create(buffer);
-    free(buffer);
-    return result;
 }

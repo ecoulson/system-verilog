@@ -14,6 +14,7 @@ typedef struct arena_s {
 
 arena_t* arena_create(size_t block_size);
 void* arena_allocate(arena_t* arena, size_t size);
+void* arena_reallocate(arena_t* arena, void* old_memory, size_t old_size, size_t new_size);
 void arena_free(arena_t* arena);
 
 #endif

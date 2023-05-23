@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "string.h"
+#include "arena.h"
 
 typedef struct source_code_position_s {
     int row;
@@ -10,9 +11,8 @@ typedef struct source_code_position_s {
     string_t* file_path;
 } source_code_position_t;
 
-source_code_position_t* create_source_code_position(string_t* file_path); 
-source_code_position_t* source_code_position_copy(source_code_position_t* source_code_position);
+source_code_position_t* create_source_code_position(arena_t* arena, string_t* file_path); 
+source_code_position_t* source_code_position_copy(arena_t* arena, source_code_position_t* source_code_position);
 void update_source_code_position(source_code_position_t* source_code_position, char ch);
-void source_code_position_deallocate(source_code_position_t* source_code_position); 
 
 #endif

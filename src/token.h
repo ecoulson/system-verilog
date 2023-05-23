@@ -2,6 +2,7 @@
 #define TOKEN_H
 
 #include "string.h"
+#include "arena.h"
 #include "source_code_position.h"
 
 typedef struct token_s {
@@ -53,7 +54,6 @@ typedef enum token_type_e {
 } token_type_t;
 
 
-token_t* token_create(token_type_t type, string_t* value, source_code_position_t* source_code_position);
-void token_deallocate(token_t* token); 
+token_t* token_create(arena_t* arena, token_type_t type, string_t* value, source_code_position_t* source_code_position);
 
 #endif

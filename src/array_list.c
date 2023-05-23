@@ -3,17 +3,18 @@
 
 #include "array_list.h"
 
-array_list_t* array_list_create() {
-    array_list_t* array_list = malloc(sizeof(array_list_t));
+array_list_t* array_list_create(arena_t* arena) {
+    array_list_t* array_list = arena_allocate(arena, sizeof(array_list_t));
 
     if (array_list == NULL) {
         printf("Failed to allocate memory for creating the array list\n");
         exit(1);
     }
 
+    array_list->arena = arena;
     array_list->capacity = ARRAY_LIST_INITIAL_CAPACITY;
     array_list->length = 0;
-    array_list->elements = malloc(ARRAY_LIST_INITIAL_CAPACITY * sizeof(void*));
+    array_list->elements = arena_allocate(arena, ARRAY_LIST_INITIAL_CAPACITY * sizeof(void*));
 
     if (array_list->elements == NULL) {
         printf("Failed to allocate memory for storing the elements of the array list\n");
@@ -23,14 +24,12 @@ array_list_t* array_list_create() {
     return array_list;
 }
 
-void array_list_deallocate(array_list_t* list) {
-    free(list->elements);
-    free(list);
-}
-
 void array_list_upsize(array_list_t* array_list) {
+    int old_size = array_list->capacity * sizeof(void*);
     array_list->capacity <<= 1;
-    array_list->elements = realloc(array_list->elements, array_list->capacity * sizeof(void*));
+    int new_size = array_list->capacity * sizeof(void*);
+    array_list->elements = arena_reallocate(
+        array_list->arena, array_list->elements, old_size, new_size);
 
     if (array_list->elements == NULL) {
         printf("Failed to allocate memory for resizing array list\n");
@@ -72,8 +71,11 @@ void* array_list_get(array_list_t *array_list, int i) {
 
 void array_list_downsize(array_list_t* array_list) {
     if (array_list->length > 1) {
+        int old_size = array_list->capacity * sizeof(void*);
         array_list->capacity >>= 1;
-        array_list->elements = realloc(array_list->elements, array_list->capacity * sizeof(void*));
+        int new_size = array_list->capacity * sizeof(void*);
+        array_list->elements = arena_reallocate(
+            array_list->arena, array_list->elements, old_size, new_size);
 
         if (array_list->elements == NULL) {
             printf("Failed to allocate memory for resizing array list\n");

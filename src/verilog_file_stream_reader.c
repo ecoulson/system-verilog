@@ -1,21 +1,14 @@
 #include <stdlib.h>
 #include "verilog_file_stream_reader.h"
 
-verilog_file_stream_reader_t* create_verilog_file_stream_reader(string_t* file_path) {
-    verilog_file_stream_reader_t* reader = malloc(sizeof(verilog_file_stream_reader_t));
+verilog_file_stream_reader_t* create_verilog_file_stream_reader(arena_t* arena, string_t* file_path) {
+    verilog_file_stream_reader_t* reader = arena_allocate(arena, sizeof(verilog_file_stream_reader_t));
 
     reader->file = fopen(file_path->value, "r");
     reader->seek_position = 0;
-    reader->source_code_position = create_source_code_position(file_path);
+    reader->source_code_position = create_source_code_position(arena, file_path);
 
     return reader;
-}
-
-void free_verilog_file_stream_reader(verilog_file_stream_reader_t* verilog_file_stream_reader) {
-    fclose(verilog_file_stream_reader->file);
-
-    source_code_position_deallocate(verilog_file_stream_reader->source_code_position);
-    free(verilog_file_stream_reader);
 }
 
 char verilog_read_char(verilog_file_stream_reader_t* verilog_file_stream_reader) {
