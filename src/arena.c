@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
@@ -38,6 +39,7 @@ void* arena_allocate(arena_t* arena, size_t size) {
     offset -= (uintptr_t)arena->block;
     
     if (arena->block_size < offset + size) {
+        printf("out of mem\n");
         return NULL;
     }
 
