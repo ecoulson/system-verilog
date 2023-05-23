@@ -12,11 +12,10 @@ typedef struct verilog_file_stream_reader_s {
     long seek_position;
 } verilog_file_stream_reader_t;
 
-verilog_file_stream_reader_t* create_verilog_file_stream_reader(arena_t* arena, string_t* file_path);
-char verilog_read_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
-void verilog_seek_to(verilog_file_stream_reader_t* verilog_file_stream_reader, int seek_position);
-char verilog_peek_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
-int verilog_reader_has_next_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
-void print_verilog_file_stream_reader(FILE* file, verilog_file_stream_reader_t* verilog_file_stream_reader);
+verilog_file_stream_reader_t* verilog_file_stream_reader_create(arena_t* arena, string_t* file_path);
+char verilog_file_stream_reader_read_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
+void verilog_file_stream_reader_seek_to(verilog_file_stream_reader_t* verilog_file_stream_reader, int seek_position);
+char verilog_file_stream_reader_peek_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
+int verilog_file_stream_reader_has_next_char(verilog_file_stream_reader_t* verilog_file_stream_reader);
 
 #endif

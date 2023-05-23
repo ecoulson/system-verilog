@@ -4,7 +4,7 @@
 #include "string.h"
 #include "array_list.h"
 
-source_code_position_t* create_source_code_position(arena_t* arena, string_t* file_path) {
+source_code_position_t* source_code_position_create(arena_t* arena, string_t* file_path) {
     source_code_position_t* source_code_position = arena_allocate(arena, sizeof(source_code_position_t));
 
     source_code_position->column = 1;
@@ -15,7 +15,7 @@ source_code_position_t* create_source_code_position(arena_t* arena, string_t* fi
 }
 
 source_code_position_t* source_code_position_copy(arena_t* arena, source_code_position_t* source_code_position) {
-    source_code_position_t* copy = create_source_code_position(
+    source_code_position_t* copy = source_code_position_create(
         arena,
         source_code_position->file_path
     );
@@ -26,7 +26,7 @@ source_code_position_t* source_code_position_copy(arena_t* arena, source_code_po
     return copy;
 }
 
-void update_source_code_position(source_code_position_t* source_code_position, char ch) {
+void source_code_position_move(source_code_position_t* source_code_position, char ch) {
     if (ch == '\n') {
         source_code_position->row++;
         source_code_position->column = 0;

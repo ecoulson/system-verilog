@@ -13,11 +13,11 @@ lexer_t* lexer_create(arena_t* arena, verilog_file_stream_reader_t* file_stream_
 }
 
 char lexer_read_next_character(lexer_t* lexer) {
-    return verilog_read_char(lexer->file_stream_reader);
+    return verilog_file_stream_reader_read_char(lexer->file_stream_reader);
 }
 
 char lexer_peek_next_character(lexer_t* lexer) {
-    return verilog_peek_char(lexer->file_stream_reader);
+    return verilog_file_stream_reader_peek_char(lexer->file_stream_reader);
 }
 
 token_t* lexer_create_error_token(lexer_t* lexer) {
@@ -233,7 +233,7 @@ token_t* lexer_create_eof_token(lexer_t* lexer) {
 }
 
 void lexer_seek_to(lexer_t* lexer, int seek_position) {
-    verilog_seek_to(lexer->file_stream_reader, seek_position);
+    verilog_file_stream_reader_seek_to(lexer->file_stream_reader, seek_position);
 }
 
 long lexer_get_current_seek_position(lexer_t* lexer) {

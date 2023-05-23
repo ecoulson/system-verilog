@@ -12,7 +12,7 @@ void compile(int argument_count, char** argument_variables) {
 
     for (size_t i = 1; i < argument_count; i++) {
         string_t *file_name = string_create(arena, argument_variables[i]);
-        verilog_file_stream_reader_t* verilog_file_stream_reader = create_verilog_file_stream_reader(arena, file_name);
+        verilog_file_stream_reader_t* verilog_file_stream_reader = verilog_file_stream_reader_create(arena, file_name);
         lexer_t* lexer = lexer_create(arena, verilog_file_stream_reader);
 
         while (lexer_has_tokens_to_lex(lexer)) {
