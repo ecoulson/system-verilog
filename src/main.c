@@ -6,12 +6,25 @@
 #include "token.h"
 #include "arena.h"
 #include "verilog_file_stream_reader.h"
+#include "token_stream.h"
+
+token_stream_t* lex_file(arena_t* arena, char* file_path) {
+    string_t *file_name = string_create(arena, file_path);
+    verilog_file_stream_reader_t* verilog_file_stream_reader = verilog_file_stream_reader_create(arena, file_name);
+    lexer_t* lexer = lexer_create(arena, verilog_file_stream_reader);
+    token_stream_t* token_stream = token_stream_create(arena);
+
+    while (lexer_has_tokens_to_lex(lexer)) {
+        token_t* token = lexer_lex(lexer);
+        token_stream_write(token_stream, token);
+    }
+
+    lexer_close(lexer);
+
+    return token_stream;
+}
 
 void compile(int argument_count, char** argument_variables) {
-    // TODO: token stream (this should be a struct that creates an array list)   
-    // it should have operations for reading the next token, asserting the next token
-    // peeking the next token, checking for remaining tokens, writing a token to the stream
-
     // the parser then takes the token stream and creates a parse tree? Need to think
     // about how to link all the files together? Maybe it just creates the parse trees
     // and if certain things don't exist it assumes it could just be defined in another
@@ -20,23 +33,18 @@ void compile(int argument_count, char** argument_variables) {
     // determine the something is undefined
 
     for (size_t i = 1; i < argument_count; i++) {
-        arena_t* arena = arena_create(4000000); // 4mB
-        string_t *file_name = string_create(arena, argument_variables[i]);
-        verilog_file_stream_reader_t* verilog_file_stream_reader = verilog_file_stream_reader_create(arena, file_name);
-        lexer_t* lexer = lexer_create(arena, verilog_file_stream_reader);
+        arena_t* lex_arena = arena_create(4000000); // 4mB
 
-        while (lexer_has_tokens_to_lex(lexer)) {
-            token_t* token = lexer_lex(lexer);
-            printf(
-                "Token: %d %s %s\n", 
-                token->type, 
-                token->value->value,
-                lexer->file_stream_reader->source_code_position->file_path->value
-            );
+        token_stream_t* token_stream = lex_file(lex_arena, argument_variables[i]);
+
+        while (token_stream_can_read(token_stream)) {
+            token_t* token = token_stream_peek(token_stream);
+            printf("%d %s\n", token->type, token->value->value);
+            token_stream_read(token_stream);
         }
 
-        lexer_close(lexer);
-        arena_free(arena);
+        // syntax_node_t* ast = parse_token_stream(token_stream);
+        arena_free(lex_arena);
     }
 }
 
