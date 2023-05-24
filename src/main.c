@@ -8,7 +8,7 @@
 #include "verilog_file_stream_reader.h"
 
 void compile(int argument_count, char** argument_variables) {
-    arena_t* arena = arena_create(4000000);
+    arena_t* arena = arena_create(4000000); // 4mB
 
     for (size_t i = 1; i < argument_count; i++) {
         string_t *file_name = string_create(arena, argument_variables[i]);

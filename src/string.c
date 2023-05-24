@@ -81,3 +81,19 @@ string_t* string_format(arena_t* arena, string_t* format_string, array_list_t* a
 
     return display_string;
 }
+
+int string_equals_constant(string_t* string, char* constant) {
+    int constant_length = strlen(constant);
+
+    if (string->length != constant_length) {
+        return 0;
+    }
+
+    for (int i = 0; i < string->length; i++) {
+        if (string->value[i] != constant[i]) {
+            return 0;
+        }
+    }
+
+    return 1;
+}

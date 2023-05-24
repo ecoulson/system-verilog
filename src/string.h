@@ -15,5 +15,6 @@ string_t* string_append_character(arena_t* arena, string_t* string, char charact
 string_t* string_format(arena_t* arena, string_t* format_string, array_list_t* arguments);
 string_t* string_concatenate(arena_t* arena, string_t* prefix, string_t* suffix);
 string_t* string_convert_integer(int i);
+int string_equals_constant(string_t* string, char* constant);
 
 #endif

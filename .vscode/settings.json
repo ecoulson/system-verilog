@@ -25,6 +25,7 @@
         "complex": "c",
         "token.h": "c",
         "source_code_position.h": "c",
-        "arena.h": "c"
+        "arena.h": "c",
+        "stdlib.h": "c"
     }
 }
